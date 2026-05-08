@@ -34,7 +34,6 @@ doMoveToTarget:
     jal doWaitLarreIdle
     pop ra
     j ra
-
 doSetScanStatusToDead:
     move scanStatus statusDead
     j ra
@@ -47,10 +46,9 @@ doSetScanStatusToGrowing:
 doSetScanStatusToReady:
     move scanStatus statusReady
     j ra
-
 doScanComplexIsDead:
     ls r15 larreDevice 255 Growth
-    bne r15 6 ra
+    blt r15 6 ra
     ls r15 larreDevice 255 Seeding
     bne r15 -1 ra
     push ra
@@ -79,7 +77,6 @@ doPlantNewSeed:
     jal doActivate
     pop ra
     j ra
-
 doHarvestOnce:
     push ra
     jal doActivate
@@ -93,23 +90,26 @@ doHarvestOnce:
     j ra
 doHarvestMultiple:
     push ra
-    doHarvestActivation:
+    doLoopHarvestActivation:
         jal doActivate
         ls r15 larreDevice 255 Occupied
-        beq r15 1 doHarvestActivation
-    push targetIndex
-    move targetIndex importIndex
-    jal doMoveToTarget
-    jal doActivate
-    pop targetIndex
-    jal doMoveToTarget
-    pop ra
-    j ra
+        beq r15 0 doContinueHarvestMultiple
+        ls r15 larreDevice 255 Seeding
+        bne r15 -1 doLoopHarvestActivation
+        j doContinueHarvestMultiple
+    doContinueHarvestMultiple:
+        push targetIndex
+        move targetIndex importIndex
+        jal doMoveToTarget
+        jal doActivate
+        pop targetIndex
+        jal doMoveToTarget
+        pop ra
+        j ra
 doHarvest:
     ls r15 larreDevice 255 Seeding
     beq r15 1 doHarvestOnce
     beq r15 0 doHarvestMultiple
-
 doLoop:
     jal doScanCurrent
     s db Setting scanStatus
