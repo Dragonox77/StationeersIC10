@@ -1,0 +1,126 @@
+define exportIndex -2
+define importIndex -1
+define statusUnknown 0
+define statusEmpty 1
+define statusGrowing 2
+define statusReady 3
+define statusDead 4
+
+alias larreDevice d0
+alias hydroponicTraySettingDevice d1
+
+alias targetIndex r0
+alias scanStatus r1
+alias hydroponicCount r2
+
+#Setup
+l hydroponicCount hydroponicTraySettingDevice Setting
+j doStart
+
+doWaitLarreIdle:
+    yield
+    l r15 larreDevice Idle
+    bnez r15 ra
+    j doWaitLarreIdle
+doActivate:
+    s larreDevice Activate 1
+    push ra
+    jal doWaitLarreIdle
+    pop ra
+    j ra
+doMoveToTarget:
+    s larreDevice Setting targetIndex
+    push ra
+    jal doWaitLarreIdle
+    pop ra
+    j ra
+
+doSetScanStatusToDead:
+    move scanStatus statusDead
+    j ra
+doSetScanStatusToEmpty:
+    move scanStatus statusEmpty
+    j ra
+doSetScanStatusToGrowing:
+    move scanStatus statusGrowing
+    j ra
+doSetScanStatusToReady:
+    move scanStatus statusReady
+    j ra
+
+doScanComplexIsDead:
+    ls r15 larreDevice 255 Growth
+    bne r15 6 ra
+    ls r15 larreDevice 255 Seeding
+    bne r15 -1 ra
+    push ra
+    jal doSetScanStatusToDead
+    pop ra
+    j ra
+doScanCurrent:
+    move scanStatus statusUnknown
+    ls r15 larreDevice 255 Occupied
+    beq r15 0 doSetScanStatusToEmpty
+    push ra
+    jal doScanComplexIsDead
+    pop ra
+    beq scanStatus statusDead ra
+    ls r15 larreDevice 255 Seeding
+    beq r15 -1 doSetScanStatusToGrowing
+    j doSetScanStatusToReady
+doPlantNewSeed:
+    push ra
+    push targetIndex
+    move targetIndex exportIndex
+    jal doMoveToTarget
+    jal doActivate
+    pop targetIndex
+    jal doMoveToTarget
+    jal doActivate
+    pop ra
+    j ra
+
+doHarvestOnce:
+    push ra
+    jal doActivate
+    push targetIndex
+    move targetIndex importIndex
+    jal doMoveToTarget
+    jal doActivate
+    pop targetIndex
+    jal doMoveToTarget
+    pop ra
+    j ra
+doHarvestMultiple:
+    push ra
+    doHarvestActivation:
+        jal doActivate
+        ls r15 larreDevice 255 Occupied
+        beq r15 1 doHarvestActivation
+    push targetIndex
+    move targetIndex importIndex
+    jal doMoveToTarget
+    jal doActivate
+    pop targetIndex
+    jal doMoveToTarget
+    pop ra
+    j ra
+doHarvest:
+    ls r15 larreDevice 255 Seeding
+    beq r15 1 doHarvestOnce
+    beq r15 0 doHarvestMultiple
+
+doLoop:
+    jal doScanCurrent
+    s db Setting scanStatus
+    beqal scanStatus statusDead doActivate
+    beqal scanStatus statusEmpty doPlantNewSeed
+    beqal scanStatus statusReady doHarvest
+    add targetIndex targetIndex 1
+    bgt targetIndex hydroponicCount doStart
+    jal doMoveToTarget
+    j doLoop
+doStart:
+    move targetIndex 1
+    jal doMoveToTarget
+    j doLoop
