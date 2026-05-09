@@ -77,39 +77,38 @@ doPlantNewSeed:
     jal doActivate
     pop ra
     j ra
-doHarvestOnce:
+doLoopHarvestActivation:
     push ra
     jal doActivate
+    pop ra
+    ls r15 larreDevice 255 Occupied
+    beq r15 0 ra
+    ls r15 larreDevice 255 Seeding
+    bne r15 -1 doLoopHarvestActivation
+    j ra
+doLoopActivateUntilHandEmpty:
+    push ra
+    jal doActivate
+    pop ra
+    ls r15 larreDevice 0 Occupied
+    beq r15 1 doLoopActivateUntilHandEmpty
+    j ra
+doEmptyEverythingInImport:
+    push ra
     push targetIndex
     move targetIndex importIndex
     jal doMoveToTarget
-    jal doActivate
+    jal doLoopActivateUntilHandEmpty
     pop targetIndex
     jal doMoveToTarget
     pop ra
     j ra
-doHarvestMultiple:
-    push ra
-    doLoopHarvestActivation:
-        jal doActivate
-        ls r15 larreDevice 255 Occupied
-        beq r15 0 doContinueHarvestMultiple
-        ls r15 larreDevice 255 Seeding
-        bne r15 -1 doLoopHarvestActivation
-        j doContinueHarvestMultiple
-    doContinueHarvestMultiple:
-        push targetIndex
-        move targetIndex importIndex
-        jal doMoveToTarget
-        jal doActivate
-        pop targetIndex
-        jal doMoveToTarget
-        pop ra
-        j ra
 doHarvest:
-    ls r15 larreDevice 255 Seeding
-    beq r15 1 doHarvestOnce
-    beq r15 0 doHarvestMultiple
+    push ra
+    jal doLoopHarvestActivation
+    jal doEmptyEverythingInImport
+    pop ra
+    j ra
 doLoop:
     jal doScanCurrent
     s db Setting scanStatus
