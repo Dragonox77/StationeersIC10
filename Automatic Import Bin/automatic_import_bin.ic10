@@ -1,0 +1,10 @@
+alias importDevice d0
+
+j loop
+
+loop:
+    yield
+    ls r15 importDevice 0 Occupied
+    beq r15 0 loop
+    s importDevice Open 0
+    j loop
