@@ -1,0 +1,65 @@
+alias hashSelector d0
+
+
+j loop
+selectHash:
+    brdns hashSelector 3
+    l r15 hashSelector Setting
+    brne r15 0 3
+    s db Setting HASH("SeedBag_Wheet")
+    j ra
+    brne r15 1 3
+    s db Setting HASH("SeedBag_Watermelon")
+    j ra
+    brne r15 2 3
+    s db Setting HASH("SeedBag_Tomato")
+    j ra
+    brne r15 3 3
+    s db Setting HASH("SeedBag_Switchgrass")
+    j ra
+    brne r15 4 3
+    s db Setting HASH("SeedBag_SugarCane")
+    j ra
+    brne r15 5 3
+    s db Setting HASH("SeedBag_Strawberry")
+    j ra
+    brne r15 6 3
+    s db Setting HASH("SeedBag_Soybean")
+    j ra
+    brne r15 7 3
+    s db Setting HASH("SeedBag_Rice")
+    j ra
+    brne r15 8 3
+    s db Setting HASH("SeedBag_Pumpkin")
+    j ra
+    brne r15 9 3
+    s db Setting HASH("SeedBag_Potato")
+    j ra
+    brne r15 10 3
+    s db Setting HASH("SeedBag_Mushroom")
+    j ra
+    brne r15 11 3
+    s db Setting HASH("SeedBag_HadesBeta")
+    j ra
+    brne r15 12 3
+    s db Setting HASH("SeedBag_HadesAlpha")
+    j ra
+    brne r15 13 3
+    s db Setting HASH("SeedBag_Fern")
+    j ra
+    brne r15 14 3
+    s db Setting HASH("SeedBag_DargaFern")
+    j ra
+    brne r15 15 3
+    s db Setting HASH("SeedBag_Corn")
+    j ra
+    brne r15 16 3
+    s db Setting HASH("SeedBag_Cocoa")
+    j ra #Else
+    s db Setting HASH("SeedBag_Blueberry")
+    j ra
+
+loop:
+    yield
+    jal selectHash
+    j loop

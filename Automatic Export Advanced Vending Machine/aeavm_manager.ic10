@@ -1,0 +1,93 @@
+alias vendingMachine d0
+alias icGui d1
+alias exportBin d2
+alias led d3
+
+alias statusItem r0
+
+define STATUS_ITEM_UNKNOWN 0
+define STATUS_ITEM_NOT_FOUND 1
+define STATUS_ITEM_FOUND 2
+define STATUS_ITEM_TRANSITING 3
+
+move statusItem STATUS_ITEM_UNKNOWN
+s led Color Color.White
+j loop
+
+checkHashInVendingMachineSlotR15:
+    ls r14 vendingMachine r15 OccupantHash
+    push r15
+    l r15 icGui Setting
+    brne r15 r14 2
+    move statusItem STATUS_ITEM_FOUND
+    pop r15
+    j ra
+checkHashInVendingMachineLoopR15:
+    add r15 r15 1
+    brlt r15 101 3
+    move statusItem STATUS_ITEM_NOT_FOUND
+    j ra
+    push ra
+    jal checkHashInVendingMachineSlotR15
+    pop ra
+    bne statusItem STATUS_ITEM_UNKNOWN ra
+    j checkHashInVendingMachineLoopR15
+checkHashInVendingMachineAllSlot:
+    beq statusItem STATUS_ITEM_TRANSITING ra
+    move statusItem STATUS_ITEM_UNKNOWN
+    move r15 0 #Starting slot 1
+    push ra
+    jal checkHashInVendingMachineLoopR15
+    pop ra
+    j ra
+updateLight:
+    bdns led ra
+    brne statusItem STATUS_ITEM_NOT_FOUND 3
+    s led Color Color.Red
+    j ra
+    brne statusItem STATUS_ITEM_TRANSITING 3
+    s led Color Color.Yellow
+    j ra
+    brne statusItem STATUS_ITEM_UNKNOWN 3
+    s led Color Color.Pink
+    j ra
+    s led Color Color.Green
+    j ra
+doRequestIfNeeded:
+    beq statusItem STATUS_ITEM_TRANSITING ra
+    beq statusItem STATUS_ITEM_NOT_FOUND ra
+    ls r15 exportBin 0 Occupied
+    bnez r15 ra
+    push ra
+    move r15 4
+    jal waitR15Ticks
+    pop ra
+    ls r15 exportBin 0 Occupied
+    bnez r15 ra
+    l r15 icGui Setting
+    s vendingMachine RequestHash r15
+    move statusItem STATUS_ITEM_TRANSITING
+    push ra
+    jal updateLight
+    jal waitUntilExportBinOccupied
+    move statusItem STATUS_ITEM_UNKNOWN
+    pop ra
+    j ra
+waitUntilExportBinOccupied:
+    yield
+    s db Setting 2
+    ls r15 exportBin 0 Occupied
+    beq r15 0 waitUntilExportBinOccupied
+    s db Setting 3
+    j ra
+waitR15Ticks:
+    yield
+    sub r15 r15 1
+    beqz r15 ra
+    j waitR15Ticks
+loop:
+    yield
+    jal checkHashInVendingMachineAllSlot
+    jal updateLight
+    jal doRequestIfNeeded
+    j loop
