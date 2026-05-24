@@ -61,7 +61,7 @@ doSetTargetIndexStationFromHand:
     brne r15 HASH("ItemSilverIngot") 3
     move targetIndex SILVER_STATION
     j ra
-    brne r15 HASH("ItemLeadOre") 3
+    brne r15 HASH("ItemLeadIngot") 3
     move targetIndex LEAD_STATION
     j ra
     brne r15 HASH("ItemNickelIngot") 3
