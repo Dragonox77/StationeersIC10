@@ -1,0 +1,128 @@
+define IRON_STATION -12
+define COPPER_STATION -11
+define GOLD_STATION -10
+define SILICON_STATION -9
+define SILVER_STATION -8
+define LEAD_STATION -7
+define NICKEL_STATION -6
+define STEEL_STATION -5
+define INVAR_STATION -2
+define SOLDER_STATION -3
+define ELECTRUM_STATION -4
+define CONSTANTAN_STATION -2
+define WASPALOY_STATION -1
+define INCONEL_STATION -1
+define ASTROLOY_STATION -1
+define HASTELLOY_STATION -1
+define STELLITE_STATION -1
+define UNKNOWN_STATION -1
+define EXPORT_STATION 1
+alias larreDevice d0
+alias targetIndex r0
+alias depositSlot r1
+j loop
+doWaitLarreIdle:
+    yield
+    l r15 larreDevice Idle
+    bnez r15 ra
+    j doWaitLarreIdle
+doActivate:
+    s larreDevice Activate 1
+    push ra
+    jal doWaitLarreIdle
+    pop ra
+    j ra
+doMoveToTargetIndex:
+    s larreDevice Setting targetIndex
+    push ra
+    jal doWaitLarreIdle
+    pop ra
+    j ra
+doWaitExportBinFill:
+    s larreDevice TargetSlotIndex 0
+    ls r15 larreDevice 255 Occupied
+    bnez r15 ra
+    yield
+    j doWaitExportBinFill
+doSetTargetIndexStationFromHand:
+    ls r15 larreDevice 0 OccupantHash
+    brne r15 HASH("ItemIronIngot") 3
+    move targetIndex IRON_STATION
+    j ra
+    brne r15 HASH("ItemCopperIngot") 3
+    move targetIndex COPPER_STATION
+    j ra
+    brne r15 HASH("ItemGoldIngot") 3
+    move targetIndex GOLD_STATION
+    j ra
+    brne r15 HASH("ItemSiliconIngot") 3
+    move targetIndex SILICON_STATION
+    j ra
+    brne r15 HASH("ItemSilverIngot") 3
+    move targetIndex SILVER_STATION
+    j ra
+    brne r15 HASH("ItemLeadOre") 3
+    move targetIndex LEAD_STATION
+    j ra
+    brne r15 HASH("ItemNickelIngot") 3
+    move targetIndex NICKEL_STATION
+    j ra
+    brne r15 HASH("ItemSteelIngot") 3
+    move targetIndex STEEL_STATION
+    j ra
+    brne r15 HASH("ItemInvarIngot") 3
+    move targetIndex INVAR_STATION
+    j ra
+    brne r15 HASH("ItemSolderIngot") 3
+    move targetIndex SOLDER_STATION
+    j ra
+    brne r15 HASH("ItemElectrumIngot") 3
+    move targetIndex ELECTRUM_STATION
+    j ra
+    brne r15 HASH("ItemConstantanIngot") 3
+    move targetIndex CONSTANTAN_STATION
+    j ra
+    brne r15 HASH("ItemWaspaloyIngot") 3
+    move targetIndex WASPALOY_STATION
+    j ra
+    brne r15 HASH("ItemInconelIngot") 3
+    move targetIndex INCONEL_STATION
+    j ra
+    brne r15 HASH("ItemAstroloyIngot") 3
+    move targetIndex ASTROLOY_STATION
+    j ra
+    brne r15 HASH("ItemHastelloyIngot") 3
+    move targetIndex HASTELLOY_STATION
+    j ra
+    brne r15 HASH("ItemStelliteIngot") 3
+    move targetIndex STELLITE_STATION
+    j ra
+    move targetIndex UNKNOWN_STATION
+    j ra
+doDepositIfFreeCurrentSlot:
+    s larreDevice TargetSlotIndex depositSlot
+    ls r15 larreDevice 255 Occupied
+    bnez r15 ra
+    push ra
+    jal doActivate
+    pop ra
+    move depositSlot -1 # Finished
+    j ra
+doDepositItem:
+    push ra
+    jal doDepositIfFreeCurrentSlot
+    pop ra
+    beq depositSlot -1 ra
+    add depositSlot depositSlot 1
+    bgt depositSlot 14 ra
+    j doDepositItem
+loop:
+    move targetIndex EXPORT_STATION
+    jal doMoveToTargetIndex
+    jal doWaitExportBinFill
+    jal doActivate
+    jal doSetTargetIndexStationFromHand
+    jal doMoveToTargetIndex
+    move depositSlot 0
+    jal doDepositItem
+    j loop

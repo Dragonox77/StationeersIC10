@@ -1,0 +1,12 @@
+alias stackerDevice d0
+
+s stackerDevice Mode 0
+j loop
+
+loop:
+    yield
+    l r15 stackerDevice Setting
+    ls r14 stackerDevice 2 Quantity
+    blt r15 r14 loop
+    s stackerDevice Activate 1
+    j loop
