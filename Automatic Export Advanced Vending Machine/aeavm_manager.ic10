@@ -58,10 +58,7 @@ doRequestIfNeeded:
     beq statusItem STATUS_ITEM_NOT_FOUND ra
     ls r15 exportBin 0 Occupied
     bnez r15 ra
-    push ra
-    move r15 4
-    jal waitR15Ticks
-    pop ra
+    sleep 2
     ls r15 exportBin 0 Occupied
     bnez r15 ra
     l r15 icGui Setting
@@ -80,11 +77,6 @@ waitUntilExportBinOccupied:
     beq r15 0 waitUntilExportBinOccupied
     s db Setting 3
     j ra
-waitR15Ticks:
-    yield
-    sub r15 r15 1
-    beqz r15 ra
-    j waitR15Ticks
 loop:
     yield
     jal checkHashInVendingMachineAllSlot
