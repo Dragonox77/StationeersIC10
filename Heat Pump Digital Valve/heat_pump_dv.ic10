@@ -1,0 +1,28 @@
+alias dial d0
+alias digitalValve d1
+alias gasSensor d2
+alias tempReading r0
+alias dialReading r1
+
+j loop
+
+activateDigitalValve:
+    l r15 digitalValve On
+    bnez r15 ra
+    s digitalValve On 1
+    j ra
+
+desactivateDigitalValve:
+    l r15 digitalValve On
+    beqz r15 ra
+    s digitalValve On 0
+    j ra
+
+loop:
+    l tempReading gasSensor Temperature
+    l dialReading dial Setting
+    s db Setting tempReading
+    bgtal tempReading dialReading activateDigitalValve
+    bleal tempReading dialReading desactivateDigitalValve
+    yield
+    j loop
