@@ -21,6 +21,7 @@ desactivateDigitalValve:
 loop:
     l tempReading gasSensor Temperature
     l dialReading dial Setting
+    sub tempReading tempReading 273.15
     s db Setting tempReading
     bgtal tempReading dialReading activateDigitalValve
     bleal tempReading dialReading desactivateDigitalValve
