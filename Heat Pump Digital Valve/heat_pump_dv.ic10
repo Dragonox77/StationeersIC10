@@ -1,6 +1,6 @@
 alias dial d0
 alias digitalValve d1
-alias gasSensor d2
+alias sensor d2
 alias tempReading r0
 alias dialReading r1
 
@@ -19,7 +19,7 @@ desactivateDigitalValve:
     j ra
 
 loop:
-    l tempReading gasSensor Temperature
+    l tempReading sensor Temperature
     l dialReading dial Setting
     sub tempReading tempReading 273.15
     s db Setting tempReading

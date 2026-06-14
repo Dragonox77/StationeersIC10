@@ -1,0 +1,42 @@
+alias dial d0
+alias sensor1 d1
+alias sensor2 d2
+alias mixer d3
+alias sensorMix d4
+
+alias tempSensor1Reading r0
+alias tempSensor2Reading r1
+alias dialReading r2
+alias mixPressureReading r3
+
+
+j loop
+
+activateMixer:
+    l r15 mixer On
+    bnez r15 ra
+    s mixer On 1
+    j ra
+
+desactivateDigitalValve:
+    l r15 mixer On
+    beqz r15 ra
+    s mixer On 0
+    j ra
+
+loop:
+    yield
+    l tempSensor1Reading sensor1 Temperature
+    l tempSensor2Reading sensor2 Temperature
+    l dialReading dial Setting
+    l mixPressureReading sensorMix Pressure
+    sub tempSensor1Reading tempSensor1Reading 273.15
+    sub tempSensor2Reading tempSensor2Reading 273.15
+    bgtal tempSensor1Reading dialReading desactivateDigitalValve
+    bgt tempSensor1Reading dialReading loop
+    bgtal tempSensor2Reading dialReading desactivateDigitalValve
+    bgt tempSensor2Reading dialReading loop
+    bgtal mixPressureReading 790 desactivateDigitalValve
+    bgt mixPressureReading 790 loop
+    jal activateMixer
+    j loop

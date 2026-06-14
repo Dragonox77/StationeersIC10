@@ -1,0 +1,35 @@
+define MaxFuelPressureKpa 7
+define MaxBatteryPercent 90
+define MinBatteryDistance 15
+
+alias GasGeneratorD d0
+alias BatteryPercentTransmitterD d1
+alias PressureFuelValveD d2
+
+alias BatteryPercentReadingR r0
+alias ThresholdFuelPressureR r1
+
+
+j loop
+
+doThresholdFuelPressureCalculation:
+    sub ThresholdFuelPressureR MaxBatteryPercent BatteryPercentReadingR
+    div ThresholdFuelPressureR ThresholdFuelPressureR MinBatteryDistance
+    mul ThresholdFuelPressureR ThresholdFuelPressureR ThresholdFuelPressureR
+    mul ThresholdFuelPressureR ThresholdFuelPressureR MaxFuelPressureKpa
+    max ThresholdFuelPressureR ThresholdFuelPressureR 0
+    min ThresholdFuelPressureR ThresholdFuelPressureR MaxFuelPressureKpa
+    j ra
+
+loop:
+    yield
+    l BatteryPercentReadingR BatteryPercentTransmitterD Setting
+    mul BatteryPercentReadingR BatteryPercentReadingR 100
+    s db Setting BatteryPercentReadingR
+    jal doThresholdFuelPressureCalculation
+    s PressureFuelValveD Setting ThresholdFuelPressureR
+    beqz ThresholdFuelPressureR loop
+    l r15 GasGeneratorD On
+    beq r15 1 loop
+    s GasGeneratorD On 1
+    j loop
