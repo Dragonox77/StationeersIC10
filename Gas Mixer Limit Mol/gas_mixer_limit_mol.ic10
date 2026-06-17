@@ -1,0 +1,29 @@
+alias gasMixer d0
+alias pipeAnalyser d1
+
+alias pipeAnalyserReading r0
+
+define LIMIT_MOL 1000
+
+j loop
+
+activateGasMixer:
+l r15 gasMixer On
+bnez r15 ra
+s gasMixer On 1
+j ra
+
+desactivateGasMixer:
+l r15 gasMixer On
+beqz r15 ra
+s gasMixer On 0
+j ra
+
+
+loop:
+    yield
+    l pipeAnalyserReading pipeAnalyser TotalMoles
+    s db Setting pipeAnalyserReading
+    bgeal pipeAnalyserReading LIMIT_MOL desactivateGasMixer
+    bgtal LIMIT_MOL pipeAnalyserReading activateGasMixer
+    j loop

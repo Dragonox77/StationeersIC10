@@ -1,19 +1,19 @@
-define IRON_STATION -12
-define COPPER_STATION -11
-define GOLD_STATION -10
-define SILICON_STATION -9
-define SILVER_STATION -8
-define LEAD_STATION -7
-define NICKEL_STATION -6
-define STEEL_STATION -5
-define INVAR_STATION -2
-define SOLDER_STATION -3
-define ELECTRUM_STATION -4
-define CONSTANTAN_STATION -2
-define WASPALOY_STATION -1
-define INCONEL_STATION -1
-define ASTROLOY_STATION -1
-define HASTELLOY_STATION -1
+define IRON_STATION -17
+define COPPER_STATION -16
+define GOLD_STATION -15
+define SILICON_STATION -14
+define SILVER_STATION -13
+define LEAD_STATION -12
+define NICKEL_STATION -11
+define STEEL_STATION -10
+define INVAR_STATION -9
+define SOLDER_STATION -8
+define ELECTRUM_STATION -7
+define CONSTANTAN_STATION -6
+define WASPALOY_STATION -5
+define INCONEL_STATION -4
+define ASTROLOY_STATION -3
+define HASTELLOY_STATION -2
 define STELLITE_STATION -1
 define UNKNOWN_STATION -1
 define EXPORT_STATION 1
@@ -114,7 +114,7 @@ doDepositItem:
     pop ra
     beq depositSlot -1 ra
     add depositSlot depositSlot 1
-    bgt depositSlot 14 ra
+    bgt depositSlot 29 ra
     j doDepositItem
 loop:
     move targetIndex EXPORT_STATION
