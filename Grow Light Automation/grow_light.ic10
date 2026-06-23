@@ -1,0 +1,38 @@
+define SECONDS_ON 750
+define SECONDS_OFF 450
+
+define GROW_LIGHT_HASH HASH("StructureGrowLight")
+
+alias d_stopwatch d0
+alias r_time r0
+alias r_timerToReach r1
+
+s d_stopwatch On 1
+s d_stopwatch Activate 1
+
+j loop
+
+doWaitTimerToReach:
+    yield
+    l r_time d_stopwatch Time
+    ble r_time r_timerToReach doWaitTimerToReach
+    j ra
+
+doResetStopWatch:
+    s d_stopwatch On 0
+    yield
+    s d_stopwatch On 1
+    j ra
+
+loop:
+    yield
+    jal doResetStopWatch
+    sb GROW_LIGHT_HASH On 1
+    move r_timerToReach SECONDS_ON
+    jal doWaitTimerToReach
+
+    jal doResetStopWatch
+    sb GROW_LIGHT_HASH On 0
+    move r_timerToReach SECONDS_OFF
+    jal doWaitTimerToReach
+    j loop

@@ -1,0 +1,21 @@
+alias d_proximitySensor d0
+alias r_proximityQuantityRead r0
+
+define DOOR_HASH HASH("StructureAirlockGate")
+
+j loop
+
+doOpenDoors:
+    sb DOOR_HASH Open 1
+    j ra
+
+doCloseDoors:
+    sb DOOR_HASH Open 0
+    j ra
+
+loop:
+    yield
+    l r_proximityQuantityRead d_proximitySensor Quantity
+    bnezal r_proximityQuantityRead doOpenDoors
+    beqzal r_proximityQuantityRead doCloseDoors
+    j loop
